@@ -1,21 +1,11 @@
-import { useEffect } from "react";
-import api from "./services/api";
+import React from 'react'
 
 function App() {
-
-  useEffect(() => {
-    api.get("/auth/me")
-      .then(res => {
-        console.log("Success:", res.data);
-      })
-      .catch(err => {
-        console.log("Error:", err.response?.data || err.message);
-      });
-  }, []);
-
   return (
-    <h1>Chat App</h1>
-  );
+    <div>
+      
+    </div>
+  )
 }
 
-export default App;
+export default App
