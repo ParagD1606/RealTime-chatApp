@@ -45,7 +45,6 @@ export const signup = async (req, res) => {
     }
 };
 
-
 export const login = async (req, res)=>{
     const {email, password} = req.body
     try{
@@ -96,7 +95,7 @@ export const updateProfile = async (req, res)=>{
         }
 
         const uploadResponse = await cloudinary.uploader.upload(profilePic)
-        const updatedUser = User.findByIdAndUpdate(userId, {profilePic: uploadResponse.secure_url}, {new: true})
+        const updatedUser = await User.findByIdAndUpdate(userId, {profilePic: uploadResponse.secure_url}, {new: true})
 
         res.status(200).json(updatedUser)
 
