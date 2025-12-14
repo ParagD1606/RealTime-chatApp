@@ -1,11 +1,14 @@
+// frontend/src/store/useChatStore.js
+
 import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../lib/axios";
-import { sendMessage } from "../../../backend/src/controllers/message.controller";
+// ❌ REMOVE THIS LINE (if you didn't already):
+// import { sendMessage } from "../../../backend/src/controllers/message.controller";
 import { useAuthStore } from "./useAuthStore";
 
 export const useChatStore = create((set, get)=>({
-    message: [],
+    messages: [], // Corrected state key to 'messages'
     users: [],
     selectedUser: null,
     isUsersLoading:false,
@@ -23,10 +26,11 @@ export const useChatStore = create((set, get)=>({
         }
     },
 
-    getMessages: async()=>{
+    // Fixed logic to use userToChatId
+    getMessages: async(userToChatId)=>{
         set({isMessagesLoading: true})
         try {
-            const res = await axiosInstance.get(`/messages/${users}`)
+            const res = await axiosInstance.get(`/messages/${userToChatId}`)
             set({messages: res.data})
         } catch (error) {
             toast.error(error.response.data.message)
@@ -35,11 +39,14 @@ export const useChatStore = create((set, get)=>({
         }
     },
 
+    // Fixed destructuring and used correct variable/state names
     sendMessage: async (messageData)=>{
-        get({selectedUser, messages}) = get()
+        const {selectedUser, messages} = get() 
+        if(!selectedUser) return;
+        
         try {
-            const res = await axiosInstance.post(`/messages/send/${selected}`, messageData)
-            set({message: [...message, res.data]})
+            const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData)
+            set({messages: [...messages, res.data]})
         } catch (error) {
             toast.error(error.response.data.message)
         }
@@ -50,21 +57,24 @@ export const useChatStore = create((set, get)=>({
         if(!selectedUser) return
 
         const socket = useAuthStore.getState().socket
+        if(!socket) return
 
         socket.on("newMessage", (newMessage)=>{
-            const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id
-            if(!isMessageSentFromSelectedUser) return
-            set({
-                messages: [...get(). messages, newMessage]
-            })
+            const isMessageFromSelectedUser = newMessage.senderId === selectedUser._id
+            
+            if(isMessageFromSelectedUser){
+                set({
+                    messages: [...get().messages, newMessage]
+                })
+            }
         })
     },
 
     unsubscribeFromMessages: ()=>{
         const socket = useAuthStore.getState().socket
-
-        socket.off("newMessage")
-        
+        if(socket) {
+            socket.off("newMessage")
+        }
     },
 
     setSelectedUser: (selectedUser)=> set({selectedUser}),

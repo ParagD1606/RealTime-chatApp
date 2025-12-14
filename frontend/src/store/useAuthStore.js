@@ -2,7 +2,6 @@ import {create} from "zustand"
 import { axiosInstance } from "../lib/axios.js"
 import toast from "react-hot-toast" 
 import {io} from 'socket.io-client'
-import { disconnect } from "mongoose"
 
 const BASE_URL = "http://localhost:8000"
 
@@ -13,6 +12,7 @@ export const useAuthStore = create((set, get)=>({
     isUpdatingProfile: false,
     isCheckingAuth: true,
     socket: null,
+    onlineUsers: [], // FIXED: Initialized onlineUsers to an empty array
 
     checkAuth: async ()=>{
         try {
