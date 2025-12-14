@@ -21,10 +21,11 @@ export const getMessages = async (req, res)=>{
         const {id:userToChatId} = req.params
         const senderId = req.user._id
         
-        const message = await Message.find({
+        const messages = await Message.find({ // Renamed 'message' to 'messages'
             $or:[
-                {senderId: myId, recieverId: userToChatId},
-                {senderId: userToChatId, recieverId: myId},
+                // Replaced undeclared 'myId' with the correct 'senderId'
+                {senderId: senderId, recieverId: userToChatId}, 
+                {senderId: userToChatId, recieverId: senderId},
             ]
         })
 
